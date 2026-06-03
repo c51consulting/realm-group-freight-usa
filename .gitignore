@@ -140,3 +140,4 @@ vite.config.ts.timestamp-*
 
 # Uploads (legacy Express layer)
 uploads/
+.vercel
