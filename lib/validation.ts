@@ -20,21 +20,30 @@ export function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-// ABN validation (Australian Business Number - 11 digits)
-export function isValidABN(abn: string): boolean {
-  const cleaned = abn.replace(/\s/g, '');
-  if (!/^\d{11}$/.test(cleaned)) return false;
-  const weights = [10, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19];
-  const digits = cleaned.split('').map(Number);
-  digits[0] -= 1;
-  const sum = digits.reduce((acc, d, i) => acc + d * weights[i], 0);
-  return sum % 89 === 0;
+// EIN validation (US Employer Identification Number — XX-XXXXXXX, 9 digits)
+// Format: 2-digit prefix, dash optional, 7-digit suffix
+export function isValidEIN(ein: string): boolean {
+  const cleaned = ein.replace(/[\s-]/g, '');
+  if (!/^\d{9}$/.test(cleaned)) return false;
+  // Valid EIN prefixes (IRS Publication 1635). We allow all 2-digit prefixes 01-99
+  // because the IRS has expanded the set; reject only obvious junk (00, all-zeros)
+  const prefix = cleaned.substring(0, 2);
+  if (prefix === '00') return false;
+  if (cleaned === '000000000') return false;
+  return true;
 }
 
-// Phone validation (Australian format)
+// Backwards-compat shim: code paths that still call isValidABN now validate EIN.
+// DB column is still named `abn`, but a US user supplies an EIN.
+export function isValidABN(abn: string): boolean {
+  return isValidEIN(abn);
+}
+
+// Phone validation (US format) — accept E.164 +1XXXXXXXXXX or 10-digit local
 export function isValidPhone(phone: string): boolean {
   const cleaned = phone.replace(/[\s\-()]/g, '');
-  return /^(\+?61|0)[2-478]\d{8}$/.test(cleaned);
+  // +1 then 10 digits, or just 10 digits (assume US), or 11 digits starting with 1
+  return /^(\+?1)?[2-9]\d{2}[2-9]\d{6}$/.test(cleaned);
 }
 
 // Password strength
@@ -142,7 +151,7 @@ export function validateRegistration(data: Record<string, unknown>): ValidationR
     errors.push({ field: 'abn', message: 'Invalid EIN / Tax ID format' });
   }
   if (data.phone && !isValidPhone(data.phone as string)) {
-    errors.push({ field: 'phone', message: 'Invalid Australian phone number' });
+    errors.push({ field: 'phone', message: 'Invalid US phone number (expected 10 digits or +1XXXXXXXXXX)' });
   }
   if (data.role && !['buyer', 'seller', 'carrier', 'admin'].includes(data.role as string)) {
     errors.push({ field: 'role', message: 'Invalid role' });

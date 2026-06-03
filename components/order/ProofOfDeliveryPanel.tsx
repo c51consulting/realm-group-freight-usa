@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { formatWeight, parseWeightToKg, WEIGHT_UNIT_LABEL } from '@/lib/units';
 
 type Pod = { id: string; recipient_name?: string | null; recipient_role?: string | null; recipient_company?: string | null; signature_path?: string | null; photo_paths?: string[] | null; delivered_qty_kg?: number | null; lat?: number | null; lng?: number | null; notes?: string | null; status?: string | null; created_at?: string };
 
@@ -46,7 +47,7 @@ export default function ProofOfDeliveryPanel({ orderId }: { orderId: string }) {
         recipient_name: recipientName || null,
         recipient_role: recipientRole || null,
         recipient_company: recipientCompany || null,
-        delivered_qty_kg: deliveredQtyKg ? Number(deliveredQtyKg) : null,
+        delivered_qty_kg: deliveredQtyKg ? parseWeightToKg(deliveredQtyKg) : null,
         notes: notes || null,
       };
       if (coords) { body.lat = coords.lat; body.lng = coords.lng; }
@@ -73,7 +74,8 @@ export default function ProofOfDeliveryPanel({ orderId }: { orderId: string }) {
           <input placeholder="Recipient name" value={recipientName} onChange={e => setRecipientName(e.target.value)} />
           <input placeholder="Recipient role" value={recipientRole} onChange={e => setRecipientRole(e.target.value)} />
           <input placeholder="Recipient company" value={recipientCompany} onChange={e => setRecipientCompany(e.target.value)} />
-          <input type="number" placeholder="Delivered qty (kg)" value={deliveredQtyKg} onChange={e => setDeliveredQtyKg(e.target.value)} />
+          <input type="number" placeholder={`Delivered qty (${WEIGHT_UNIT_LABEL})`} value={deliveredQtyKg} onChange={e => setDeliveredQtyKg(e.target.value)} />
+          <small style={{ color: '#666' }}>Enter the delivered quantity in {WEIGHT_UNIT_LABEL}. We store it in kg for cross-region consistency.</small>
           <textarea placeholder="Notes" rows={2} value={notes} onChange={e => setNotes(e.target.value)} />
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <button type="button" onClick={captureLocation}>Capture GPS</button>
@@ -91,7 +93,7 @@ export default function ProofOfDeliveryPanel({ orderId }: { orderId: string }) {
           <li key={p.id} style={{ borderTop: '1px solid #eee', padding: '8px 0' }}>
             <div><strong>{p.recipient_name || 'Recipient'}</strong> {p.recipient_company && <span style={{ color: '#666' }}>- {p.recipient_company}</span>}</div>
             <div style={{ color: '#666', fontSize: 13 }}>
-              {p.delivered_qty_kg != null && <span>{p.delivered_qty_kg} kg · </span>}
+              {p.delivered_qty_kg != null && <span>{formatWeight(p.delivered_qty_kg)} · </span>}
               {p.status && <span>{p.status} · </span>}
               <span>{p.created_at}</span>
             </div>
