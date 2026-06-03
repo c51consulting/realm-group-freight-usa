@@ -16,8 +16,24 @@ export default function ContactPage() {
     <div className="max-w-3xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
       <h1 className="text-3xl font-extrabold text-gray-900 mb-4">Contact {APP_NAME}</h1>
       <p className="text-gray-600 mb-8">
-        Have a question about the marketplace, listings, or your account? Send us a message and our team will get back to you.
+        Have a question about the marketplace, your account, or an order? Send us a message and our team will get back to you, usually within one business day.
       </p>
+
+      <div className="grid sm:grid-cols-3 gap-4 mb-10 text-sm">
+        <div className="rounded-lg border border-gray-200 p-4">
+          <div className="font-semibold text-gray-900 mb-1">General &amp; Sales</div>
+          <a className="text-brand-600" href="mailto:hello@realmgroup.global">hello@realmgroup.global</a>
+        </div>
+        <div className="rounded-lg border border-gray-200 p-4">
+          <div className="font-semibold text-gray-900 mb-1">Trust &amp; Safety</div>
+          <a className="text-brand-600" href="mailto:trust@realmgroup.global">trust@realmgroup.global</a>
+        </div>
+        <div className="rounded-lg border border-gray-200 p-4">
+          <div className="font-semibold text-gray-900 mb-1">Privacy &amp; Legal</div>
+          <a className="text-brand-600" href="mailto:privacy@realmgroup.global">privacy@realmgroup.global</a>
+        </div>
+      </div>
+
       {submitted ? (
         <div className="rounded-md bg-green-50 p-4 text-green-800">
           Thanks for reaching out. We will reply to your email shortly.
@@ -62,6 +78,14 @@ export default function ContactPage() {
           </button>
         </form>
       )}
+
+      <div className="mt-12 text-sm text-gray-500 border-t pt-6">
+        <p>
+          REALM Group Global · Operating {APP_NAME} for the US market.
+          <br />
+          Registered Australian parent entity. US operations delivered via Delaware LLC.
+        </p>
+      </div>
     </div>
   );
 }
