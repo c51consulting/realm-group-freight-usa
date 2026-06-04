@@ -54,8 +54,9 @@ export default async function CarriersDirectoryPage({ searchParams }: CarriersPa
 
   // ── filters ──
   if (state) {
-    // include carriers explicitly tagged with that state OR national ("ALL")
-    query = query.overlaps('region_tags', [state, 'ALL']);
+    // Strict: only carriers explicitly tagged with the chosen state.
+    // National-only carriers (tagged "ALL") surface when no state filter is applied.
+    query = query.contains('region_tags', [state]);
   }
   if (type) {
     // any of the lowercase tags must contain the substring
@@ -222,8 +223,19 @@ export default async function CarriersDirectoryPage({ searchParams }: CarriersPa
               )}
 
               <div className="flex flex-wrap gap-1 mb-3">
-                {(c.region_tags || []).slice(0, 4).map((r: string) => (
-                  <span key={r} className="text-[10px] bg-gray-100 text-gray-700 rounded px-1.5 py-0.5">
+                {((c.region_tags as string[] | null) || [])
+                  .slice()
+                  .sort((a: string, b: string) => (a === 'ALL' ? 1 : b === 'ALL' ? -1 : 0))
+                  .slice(0, 4)
+                  .map((r: string) => (
+                  <span
+                    key={r}
+                    className={`text-[10px] rounded px-1.5 py-0.5 ${
+                      r === 'ALL'
+                        ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                        : 'bg-gray-100 text-gray-700'
+                    }`}
+                  >
                     {r === 'ALL' ? 'National' : r}
                   </span>
                 ))}
